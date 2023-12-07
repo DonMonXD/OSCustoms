@@ -2,6 +2,7 @@ import os
 
 from random import choice
 
+import csv
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
@@ -11,13 +12,23 @@ load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN_OS_CUSTOMS')
 gamers = []
 gamer_file = "D:/OSCustoms/gamers.txt"
+map_names = []
 bot = commands.Bot(command_prefix='!', intents=discord.Intents.all())
 bot_id = 1133791271668945087
 debug_id = 1144988486609416262
 aimi_tank = "<:Tank_Aimi:1144996335251107931>"
 
+def read_map_names():
+    with open("MapNames.txt") as map_name_csv:
+        reader = csv.reader(map_name_csv)
+        for map_names_reader in reader:
+            for map_name in map_names_reader:
+                map_names.append(map_name)
+
 @bot.event
 async def on_ready():
+    read_map_names()
+    print(map_names)
     file = open(gamer_file)
     for line in file:
         if line.startswith("Gamers:"):
@@ -88,6 +99,10 @@ def copyList(listToCopy):
         newList.append(item)
     return newList
 
+@bot.command()
+async def map(ctx, *args):
+    await sendMessage(ctx.channel.id, "Map: " + choice(map_names))
+
 
 @bot.command()
 async def genCustoms(ctx, *args):
@@ -114,6 +129,7 @@ async def genCustom(ctx, *args):
             continue
         await sendMessage(ctx.channel.id, "Team " + str(team_count) + ": " + listToString(team))
         team_count += 1
+    await sendMessage(ctx.channel.id, "Map: " + choice(map_names))
 
 def listToString(list) -> str:
     string = ""
